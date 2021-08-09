@@ -7,14 +7,16 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.uri.UriBuilder
 import io.micronaut.validation.Validated
+import javax.transaction.Transactional
 import javax.validation.Valid
 
 @Validated
 @Controller("/novo")
-class NovoController (val novoRepository: NovoRepository){
+class NovoController(val novoRepository: NovoRepository) {
 
     @Post
-    fun cadastra(@Body @Valid request: NovoRequest): HttpResponse<Any>{
+    @Transactional
+    fun cadastra(@Body @Valid request: NovoRequest): HttpResponse<Any> {
         println(request)
 
         val novo = request.toModel()
@@ -25,21 +27,28 @@ class NovoController (val novoRepository: NovoRepository){
     }
 
     @Get
-    fun listar(): HttpResponse<List<NovoResponse>> {
-        val novos = novoRepository.findAll()
-
-        val resposta = novos.map {
-            novo -> NovoResponse(novo)
+    @Transactional
+    fun listar(@QueryValue(defaultValue = "") email: String): HttpResponse<Any> {
+        if (email.isBlank()) {
+            val novo = novoRepository.findAll()
+            val resposta = novo.map { novos -> NovoResponse(novos) }
+            return HttpResponse.ok(resposta)
         }
+        val novo = novoRepository.findByEmail(email)
+        if (novo.isEmpty) {
+            return HttpResponse.notFound()
+        }
+        val resposta = novo.get()
 
-        return HttpResponse.ok(resposta)
+        return HttpResponse.ok(NovoResponse(resposta))
     }
 
     @Put("/{id}")
-    fun atualizar(@PathVariable id: Long, nome: String, descricao: String) : HttpResponse<Any>{
+    @Transactional
+    fun atualizar(@PathVariable id: Long, nome: String, descricao: String): HttpResponse<Any> {
         val novo = novoRepository.findById(id)
 
-        if(novo.isEmpty){
+        if (novo.isEmpty) {
             return HttpResponse.notFound()
         }
         val resposta = novo.get()
@@ -47,16 +56,15 @@ class NovoController (val novoRepository: NovoRepository){
         resposta.descricao = descricao
         resposta.nome = nome
 
-        novoRepository.update(resposta)
-
         return HttpResponse.ok(NovoResponse(resposta))
     }
 
     @Delete("/{id}")
-    fun deletar(@PathVariable id: Long) : HttpResponse<Any>{
+    @Transactional
+    fun deletar(@PathVariable id: Long): HttpResponse<Any> {
         val novo = novoRepository.findById(id)
 
-        if(novo.isEmpty){
+        if (novo.isEmpty) {
             return HttpResponse.notFound()
         }
 
