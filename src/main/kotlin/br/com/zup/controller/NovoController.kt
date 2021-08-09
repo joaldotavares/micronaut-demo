@@ -51,4 +51,17 @@ class NovoController (val novoRepository: NovoRepository){
 
         return HttpResponse.ok(NovoResponse(resposta))
     }
+
+    @Delete("/{id}")
+    fun deletar(@PathVariable id: Long) : HttpResponse<Any>{
+        val novo = novoRepository.findById(id)
+
+        if(novo.isEmpty){
+            return HttpResponse.notFound()
+        }
+
+        novoRepository.deleteById(id)
+
+        return HttpResponse.ok()
+    }
 }
