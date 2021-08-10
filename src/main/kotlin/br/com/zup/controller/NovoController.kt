@@ -18,7 +18,7 @@ class NovoController(val novoRepository: NovoRepository, val enderecoClient: End
 
     @Post
     @Transactional
-    fun cadastra(@Body @Valid request: NovoRequest): HttpResponse<Any> {
+    fun cadastrar(@Body @Valid request: NovoRequest): HttpResponse<Any> {
         println(request)
 
         val enderecoResponse = enderecoClient.consultar(request.cep)
