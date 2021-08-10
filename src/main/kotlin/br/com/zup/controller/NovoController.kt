@@ -30,23 +30,6 @@ class NovoController(val novoRepository: NovoRepository, val enderecoClient: End
         return HttpResponse.created(uri)
     }
 
-    @Get
-    @Transactional
-    fun listar(@QueryValue(defaultValue = "") email: String): HttpResponse<Any> {
-        if (email.isBlank()) {
-            val novo = novoRepository.findAll()
-            val resposta = novo.map { novos -> NovoResponse(novos) }
-            return HttpResponse.ok(resposta)
-        }
-        val novo = novoRepository.findByEmail(email)
-        if (novo.isEmpty) {
-            return HttpResponse.notFound()
-        }
-        val resposta = novo.get()
-
-        return HttpResponse.ok(NovoResponse(resposta))
-    }
-
     @Put("/{id}")
     @Transactional
     fun atualizar(@PathVariable id: Long, nome: String, descricao: String): HttpResponse<Any> {
