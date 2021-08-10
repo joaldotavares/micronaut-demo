@@ -44,6 +44,8 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-hibernate-jpa")
     implementation("org.postgresql:postgresql:42.2.23")
 
+    implementation("io.micronaut.xml:micronaut-jackson-xml")
+
 
 }
 
