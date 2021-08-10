@@ -1,5 +1,7 @@
 package br.com.zup.controller
 
+import br.com.zup.client.EnderecoClient
+import br.com.zup.dto.EnderecoResponse
 import br.com.zup.dto.NovoRequest
 import br.com.zup.dto.NovoResponse
 import br.com.zup.repository.NovoRepository
@@ -12,14 +14,16 @@ import javax.validation.Valid
 
 @Validated
 @Controller("/novo")
-class NovoController(val novoRepository: NovoRepository) {
+class NovoController(val novoRepository: NovoRepository, val enderecoClient: EnderecoClient) {
 
     @Post
     @Transactional
     fun cadastra(@Body @Valid request: NovoRequest): HttpResponse<Any> {
         println(request)
 
-        val novo = request.toModel()
+        val enderecoResponse = enderecoClient.consultar(request.cep)
+
+        val novo = request.toModel(enderecoResponse.body()!!)
         novoRepository.save(novo)
 
         val uri = UriBuilder.of("/novo/{id}").expand(mutableMapOf(Pair("id", novo.id)))
