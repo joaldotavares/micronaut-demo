@@ -16,20 +16,6 @@ import javax.validation.Valid
 @Controller("/novo")
 class NovoController(val novoRepository: NovoRepository, val enderecoClient: EnderecoClient) {
 
-    @Post
-    @Transactional
-    fun cadastrar(@Body @Valid request: NovoRequest): HttpResponse<Any> {
-        println(request)
-
-        val enderecoResponse = enderecoClient.consultar(request.cep)
-
-        val novo = request.toModel(enderecoResponse.body()!!)
-        novoRepository.save(novo)
-
-        val uri = UriBuilder.of("/novo/{id}").expand(mutableMapOf(Pair("id", novo.id)))
-        return HttpResponse.created(uri)
-    }
-
     @Put("/{id}")
     @Transactional
     fun atualizar(@PathVariable id: Long, nome: String, descricao: String): HttpResponse<Any> {
